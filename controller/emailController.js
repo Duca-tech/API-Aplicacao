@@ -43,12 +43,15 @@ var enviarDados = async(req, res) =>{
             <p><strong>Endereço do Orçamento:</strong> ${req.body.Endereco}</p>
             <p><strong>Número:</strong> ${req.body.numero}</p>
             <p><strong>Bairro:</strong> ${req.body.bairro}</p>
-            <p><strong>CEP:</strong> ${req.body.cepRef}</p>
+            <p><strong>CEP:</strong> ${req.body.cepUsuario}</p>
             
             <h3>Detalhes da Reforma:</h3>
+            <p><strong></strong>Endereço da reforma: ${req.body.RuaRef}, ${req.body.numeroRef} - ${req.body.bairroRef} - ${req.body.estadoRef}</p>
             <p><strong>Tipo de Imóvel:</strong> ${req.body.TipoImovel}</p>
             <p><strong>Ambientes de Reforma:</strong> ${AmbientesDesc.join(", ")}</p>
             <p><strong>Serviços para Reforma:</strong> ${ServicosDesc.join(", ")}</p>
+            <p>CEP da reforma: ${req.body.cepRef}</p>
+
             
             <h3>Observação:</h3>
             <p>${req.body.comentarios}</p>
