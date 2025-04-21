@@ -25,11 +25,11 @@ var enviarDados = async(req, res) =>{
         console.log("Dados recebidos:", req.body);
         console.log("Arquivo recebido:", arquivo);
 
-        var destinatarios = []
-        destinatarios.push('grautereformasorcamento@gmail.com');
-        destinatarios.push('Fantonivitor@gmail.com');
-        destinatarios.push('joaovitores82@gmail.com');        
-        destinatarios.push('wilsonducattijr@gmail.com');        
+        // var destinatarios = []
+        // destinatarios.push('grautereformasorcamento@gmail.com');
+        // destinatarios.push('Fantonivitor@gmail.com');
+        // destinatarios.push('joaovitores82@gmail.com');        
+        // destinatarios.push('wilsonducattijr@gmail.com');        
         // Configuração do e-mail
         var Ambientes = req.body.ambientes
         var Servicos = req.body.servicos
@@ -57,10 +57,10 @@ var enviarDados = async(req, res) =>{
         `;
 
         console.log("process.env.GmailGraute: ", process.env.GmailGraute)
-        console.log("dest? ", destinatarios.join(', '))
+        // console.log("dest? ", destinatarios.join(', '))
         const mailOptions = {
-            from: process.env.GmailGraute, // E-mail de remetente
-            to: destinatarios.join(', '), // Destinatários separados por vírgula
+            from: process.env.GmailWilson, // E-mail de remetente
+            to: process.env.GmailGraute, // Destinatários separados por vírgula
             subject: 'Orçamento Graute Reformas',
             html: mensagem 
             
@@ -77,9 +77,9 @@ var enviarDados = async(req, res) =>{
                 msgValidacao = 'E-mail enviado com sucesso'
                 console.log('E-mail enviado com sucesso:', info.response);
             }
+            res.json({ sucesso: op, mensagem: msgValidacao });
         });
 
-        res.json({ sucesso: op, mensagem: msgValidacao });
     } catch (error) {
         console.error("Erro no servidor:", error);
         res.status(500).json({ sucesso: false, mensagem: "Erro interno no servidor" });
