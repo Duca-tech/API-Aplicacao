@@ -56,6 +56,7 @@ var enviarDados = async(req, res) =>{
             <p>Att,<br><strong>Equipe Graute Reformas</strong></p>
         `;
 
+        console.log("process.env.GmailGraute: ", process.env.GmailGraute)
         console.log("dest? ", destinatarios.join(', '))
         const mailOptions = {
             from: process.env.GmailGraute, // E-mail de remetente
