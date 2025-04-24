@@ -24,4 +24,6 @@ const upload = multer({ storage: storage });
 // Defina a rota de envio de dados
 router.post("/enviarDados", upload.single("arquivo"), emailController.enviarDados);
 
+router.post("/EnviarDadosIniciais", upload.none(), emailController.enviarDadosIniciais)
+
 module.exports = router;

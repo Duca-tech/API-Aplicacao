@@ -90,6 +90,51 @@ var enviarDados = async(req, res) =>{
     
 }
 
+var enviarDadosIniciais = async(req,res)=>{
+    try{
+        var {nome, email, telefone, tipoReforma, mensagem} = req.body
+        
+        var mensagemGlobal = `
+            <h2>Solicitação de Contato</h2>
+
+            <p><strong>Responsável:</strong> ${nome}</p>
+            <p><strong>E-mail:</strong> ${email}</p>
+            <p><strong>Telefone:</strong> ${telefone}</p>
+            <p><strong>Tipo de Reforma:</strong> ${tipoReforma}</p>
+
+            <p><strong>Observações:</strong><br>
+            ${mensagem.replace(/\n/g, "<br>")}</p>
+        `;
+
+        const mailOptions = {
+            from: process.env.GmailWilson, // E-mail de remetente
+            to: process.env.GmailGraute, // Destinatários separados por vírgula
+            subject: 'Solicitação de Contato - Graute Reformas',
+            html: mensagemGlobal 
+            
+        };
+        var op;
+        var msgValidacao
+        transporter.sendMail(mailOptions, (error, info)=>{
+            if (error) {
+                op = false
+                msgValidacao = 'Erro ao enviar e-mail:'
+                console.log('Erro ao enviar e-mail:', error);
+            } else {
+                op = true
+                msgValidacao = 'E-mail enviado com sucesso'
+                console.log('E-mail enviado com sucesso:', info.response);
+            }
+            res.json({ sucesso: op, mensagem: msgValidacao });
+        })
+
+    }
+    catch(error){
+        console.error("Erro do Servidor: ", error)
+        res.json({sucesso: op, mensagem: msgValidacao})
+    }
+}
 
 
-module.exports = {enviarDados}
+
+module.exports = {enviarDados,enviarDadosIniciais}
