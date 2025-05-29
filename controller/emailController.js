@@ -2,25 +2,25 @@ const { request, response } = require("express");
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv");
 const axios = require("axios")
+const path = require("path");
+const rotinasFiles = require("../rotinas/RotinasFile")
 
-const {AmbientesDescricao, servicosDescricao} = require("../model/EnumeradoresDescricao")
+const { AmbientesDescricao, servicosDescricao } = require("../model/EnumeradoresDescricao")
 dotenv.config();  // Carrega as variáveis de ambiente do arquivo .env
 // Configuração do Nodemailer
 const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-        user: 'grautereformasorcamento@gmail.com',  
+        user: 'grautereformasorcamento@gmail.com',
         pass: 'wvno cepx asev gjls'
     }
 });
 
 
-var enviarDados = async(req, res) =>{
+var enviarDados = async (req, res) => {
     try {
-        debugger
-        console.log("transporter : ", transporter)
-        console.log("reqbody: ", req.body)
-        const arquivo = req.file ? req.file.filename : "Nenhum arquivo enviado";
+        
+        const arquivo = req.file ? req.file : "";
 
         console.log("Dados recebidos:", req.body);
         console.log("Arquivo recebido:", arquivo);
@@ -33,8 +33,8 @@ var enviarDados = async(req, res) =>{
         // Configuração do e-mail
         var Ambientes = req.body.ambientes
         var Servicos = req.body.servicos
-        var AmbientesDesc =Ambientes.split(",").map(x=>AmbientesDescricao(x.trim()))
-        var ServicosDesc = Servicos.split(",").map(x=>servicosDescricao(x.trim()))
+        var AmbientesDesc = Ambientes.split(",").map(x => AmbientesDescricao(x.trim()))
+        var ServicosDesc = Servicos.split(",").map(x => servicosDescricao(x.trim()))
 
         var mensagem = `
             <p><strong>Orçamento Solicitado pelo Responsável:</strong> ${req.body.nome}</p>
@@ -66,8 +66,14 @@ var enviarDados = async(req, res) =>{
             from: process.env.GmailWilson, // E-mail de remetente
             to: process.env.GmailGraute, // Destinatários separados por vírgula
             subject: 'Orçamento Graute Reformas',
-            html: mensagem 
-            
+            html: mensagem,
+            attachments: [
+                {
+                    filename: arquivo.originalname,
+                    path: path.join(__dirname, '..', 'uploads', arquivo.filename),
+                }
+            ]
+
         };
         var op;
         var msgValidacao
@@ -80,6 +86,7 @@ var enviarDados = async(req, res) =>{
                 op = true
                 msgValidacao = 'E-mail enviado com sucesso'
                 console.log('E-mail enviado com sucesso:', info.response);
+                rotinasFiles.deletarArquivoAposEnvio(arquivo.filename)
             }
             res.json({ sucesso: op, mensagem: msgValidacao });
         });
@@ -88,13 +95,13 @@ var enviarDados = async(req, res) =>{
         console.error("Erro no servidor:", error);
         res.status(500).json({ sucesso: false, mensagem: "Erro interno no servidor" });
     }
-    
+
 }
 
-var enviarDadosIniciais = async(req,res)=>{
-    try{
-        var {nome, email, telefone, tipoReforma, mensagem} = req.body
-        
+var enviarDadosIniciais = async (req, res) => {
+    try {
+        var { nome, email, telefone, tipoReforma, mensagem } = req.body
+
         var mensagemGlobal = `
             <h2>Solicitação de Contato</h2>
 
@@ -111,12 +118,12 @@ var enviarDadosIniciais = async(req,res)=>{
             from: process.env.GmailWilson, // E-mail de remetente
             to: process.env.GmailGraute, // Destinatários separados por vírgula
             subject: 'Solicitação de Contato - Graute Reformas',
-            html: mensagemGlobal 
-            
+            html: mensagemGlobal
+
         };
         var op;
         var msgValidacao
-        transporter.sendMail(mailOptions, (error, info)=>{
+        transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
                 op = false
                 msgValidacao = 'Erro ao enviar e-mail:'
@@ -125,17 +132,18 @@ var enviarDadosIniciais = async(req,res)=>{
                 op = true
                 msgValidacao = 'E-mail enviado com sucesso'
                 console.log('E-mail enviado com sucesso:', info.response);
+                deletarArquivoAposEnvio()
             }
             res.json({ sucesso: op, mensagem: msgValidacao });
         })
 
     }
-    catch(error){
+    catch (error) {
         console.error("Erro do Servidor: ", error)
-        res.json({sucesso: op, mensagem: msgValidacao})
+        res.json({ sucesso: op, mensagem: msgValidacao })
     }
 }
 
 
 
-module.exports = {enviarDados,enviarDadosIniciais}
+module.exports = { enviarDados, enviarDadosIniciais }
