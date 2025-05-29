@@ -19,7 +19,7 @@ const transporter = nodemailer.createTransport({
 
 var enviarDados = async (req, res) => {
     try {
-        
+
         const arquivo = req.file ? req.file : "";
 
         console.log("Dados recebidos:", req.body);
@@ -62,19 +62,31 @@ var enviarDados = async (req, res) => {
 
         console.log("process.env.GmailGraute: ", process.env.GmailGraute)
         // console.log("dest? ", destinatarios.join(', '))
-        const mailOptions = {
-            from: process.env.GmailWilson, // E-mail de remetente
-            to: process.env.GmailGraute, // Destinatários separados por vírgula
-            subject: 'Orçamento Graute Reformas',
-            html: mensagem,
-            attachments: [
-                {
-                    filename: arquivo.originalname,
-                    path: path.join(__dirname, '..', 'uploads', arquivo.filename),
-                }
-            ]
+        var mailOptions;
+        if (!arquivo) {
+            mailOptions = {
+                from: process.env.GmailWilson, // E-mail de remetente
+                to: process.env.GmailGraute, // Destinatários separados por vírgula
+                subject: 'Orçamento Graute Reformas',
+                html: mensagem
+            };
+        }
+        else {
+            mailOptions = {
+                from: process.env.GmailWilson, // E-mail de remetente
+                to: process.env.GmailGraute, // Destinatários separados por vírgula
+                subject: 'Orçamento Graute Reformas',
+                html: mensagem,
+                attachments: [
+                    {
+                        filename: arquivo.originalname,
+                        path: path.join(__dirname, '..', 'uploads', arquivo.filename),
+                    }
+                ]
 
-        };
+            };
+        }
+
         var op;
         var msgValidacao
         transporter.sendMail(mailOptions, (error, info) => {
@@ -86,7 +98,10 @@ var enviarDados = async (req, res) => {
                 op = true
                 msgValidacao = 'E-mail enviado com sucesso'
                 console.log('E-mail enviado com sucesso:', info.response);
-                rotinasFiles.deletarArquivoAposEnvio(arquivo.filename)
+                if (arquivo && arquivo.filename) {
+                    rotinasFiles.deletarArquivoAposEnvio(arquivo.filename)
+
+                }
             }
             res.json({ sucesso: op, mensagem: msgValidacao });
         });
@@ -132,7 +147,6 @@ var enviarDadosIniciais = async (req, res) => {
                 op = true
                 msgValidacao = 'E-mail enviado com sucesso'
                 console.log('E-mail enviado com sucesso:', info.response);
-                deletarArquivoAposEnvio()
             }
             res.json({ sucesso: op, mensagem: msgValidacao });
         })
